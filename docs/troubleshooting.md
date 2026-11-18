@@ -216,6 +216,21 @@ for it: that would also hide real drift on AWS. Listed in floci.md limitations.
   its own listener rule and the default action returns 404. The production
   plan went from 133 to 134 resources.
 
+### Issue 14: CI security gate blocked the frontend image
+
+Second CI run: `trivy scan frontend (gate)` failed.
+
+```
+virto-frontend:2.59.1 (alpine 3.24.2)   Total: 1 (CRITICAL: 1)
+brotli-libs  CVE-2026-111497  CRITICAL  fixed  1.2.0-r1 -> 1.2.1-r0  Out-of-Bounds Write in Google Brotli Decoder
+```
+
+The base image `nginxinc/nginx-unprivileged:1.30.6-alpine` was published
+before the Alpine fix. The gate did what it is there for. Fix: `apk upgrade
+--no-cache` in the runtime stage (as root, then back to uid 101). Local Trivy
+0.69.3 scan after the change: 0 CRITICAL. The platform scan stays report
+only, its base image is Virto's.
+
 ## Part 2: common errors
 
 | Symptom | Check | Fix |

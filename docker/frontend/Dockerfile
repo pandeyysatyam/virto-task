@@ -22,6 +22,14 @@ RUN curl -fsSL --retry 5 --retry-all-errors -o frontend.zip \
 
 FROM ${NGINX_IMAGE}
 ARG FRONTEND_VERSION=2.59.1
+
+# Pull security fixes for the Alpine packages of the base image. Trivy in CI
+# found CVE-2026-111497 (brotli-libs, CRITICAL, fixed in 1.2.1-r0) in
+# nginx-unprivileged:1.30.6-alpine before upstream rebuilt it.
+USER root
+# hadolint ignore=DL3017
+RUN apk upgrade --no-cache
+USER 101
 LABEL org.opencontainers.image.title="virto-frontend" \
       org.opencontainers.image.version="${FRONTEND_VERSION}"
 
