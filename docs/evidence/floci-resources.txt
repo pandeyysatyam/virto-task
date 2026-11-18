@@ -1,0 +1,69 @@
+Floci resources created by infra/terraform/envs/floci-local (emulator, not real AWS)
+captured 2026-11-18T17:30:01Z
+
+$ aws sts get-caller-identity
+{
+    "UserId": "000000000000",
+    "Account": "000000000000",
+    "Arn": "arn:aws:iam::000000000000:root"
+}
+
+$ aws ec2 describe-vpcs (virto)
+vpc-5eb66149	10.30.0.0/16
+
+$ aws ec2 describe-subnets
+virto-local-app-us-east-1a	10.30.64.0/20	us-east-1a
+virto-local-app-us-east-1b	10.30.80.0/20	us-east-1b
+virto-local-data-us-east-1a	10.30.128.0/20	us-east-1a
+virto-local-data-us-east-1b	10.30.144.0/20	us-east-1b
+virto-local-public-us-east-1a	10.30.0.0/20	us-east-1a
+virto-local-public-us-east-1b	10.30.16.0/20	us-east-1b
+
+$ aws ec2 describe-security-groups
+virto-local-platform	virto-local-frontend	virto-local-efs	virto-local-db	virto-local-alb	virto-local-cache	virto-local-search
+
+$ aws s3api list-buckets
+virto-local-backups-000000000000
+$ aws s3api get-bucket-versioning
+Enabled
+$ aws s3api get-bucket-encryption
+aws:kms
+
+$ aws secretsmanager list-secrets
+virto/local/db	arn:aws:kms:us-east-1:000000000000:key/90b5c45c-47a1-493a-8f60-57b18c75d692
+virto/local/platform-admin	arn:aws:kms:us-east-1:000000000000:key/90b5c45c-47a1-493a-8f60-57b18c75d692
+virto/local/search	arn:aws:kms:us-east-1:000000000000:key/90b5c45c-47a1-493a-8f60-57b18c75d692
+virto/local/cache	arn:aws:kms:us-east-1:000000000000:key/90b5c45c-47a1-493a-8f60-57b18c75d692
+
+$ aws ssm get-parameters-by-path --path /virto/local --recursive
+/virto/local/config/backup_bucket	virto-local-backups-000000000000
+/virto/local/config/frontend_version	2.59.1
+/virto/local/config/module_bundle	16.0.13
+/virto/local/config/platform_image	ghcr.io/virtocommerce/platform:3.1076.13
+/virto/local/config/search_provider	Lucene
+/virto/local/releases/0001	2026-11-18T17:06:35Z virto-platform:3.1076.13-b16.0.13 virto-frontend:2.59.1 2b2ede513612 1e517fe31a4a
+/virto/local/releases/0002	2026-11-18T17:23:17Z virto-platform:3.1076.13-b16.0.13 virto-frontend:2.59.1-r2 2b2ede513612 1e517fe31a4a
+
+$ aws ecr describe-repositories
+virto-local/frontend	IMMUTABLE	True
+virto-local/platform	IMMUTABLE	True
+
+$ aws iam list-roles
+virto-local-ecs-execution	virto-local-frontend-task	virto-local-platform-task
+
+$ aws logs describe-log-groups
+/virto-local/frontend	7
+/virto-local/platform	7
+
+$ aws cloudwatch describe-alarms
+virto-local-unhealthy-services	ALARM
+
+$ aws s3 ls --recursive s3://virto-local-backups-000000000000/platform/backups/ (last 8)
+2026-11-18 22:52:51        235 platform/backups/20261118-172248-pre-deploy/SHA256SUMS
+2026-11-18 22:52:52   60045648 platform/backups/20261118-172248-pre-deploy/assets.tar.gz
+2026-11-18 22:52:51         88 platform/backups/20261118-172248-pre-deploy/content.tar.gz
+2026-11-18 22:52:51    1071619 platform/backups/20261118-172248-pre-deploy/db.dump
+2026-11-18 22:53:10        235 platform/backups/20261118-172307-pre-deploy/SHA256SUMS
+2026-11-18 22:53:10   60045648 platform/backups/20261118-172307-pre-deploy/assets.tar.gz
+2026-11-18 22:53:10         88 platform/backups/20261118-172307-pre-deploy/content.tar.gz
+2026-11-18 22:53:10    1071751 platform/backups/20261118-172307-pre-deploy/db.dump

@@ -1,0 +1,265 @@
+[22:31:59] platform image: virto-platform:3.1076.13-b16.0.13
+[22:31:59] frontend image: virto-frontend:2.59.1
+[22:31:59] Building images (first build downloads about 300 MB of modules)
+ Image virto-platform:3.1076.13-b16.0.13 Building 
+ Image virto-frontend:2.59.1 Building 
+#1 reading from stdin 1.38kB done
+#1 DONE 0.0s
+
+#2 [platform internal] load build definition from Dockerfile
+#2 transferring dockerfile: 2.81kB done
+#2 DONE 0.0s
+
+#3 [frontend internal] load build definition from Dockerfile
+#3 transferring dockerfile: 1.79kB done
+#3 DONE 0.0s
+
+#4 [platform internal] load metadata for ghcr.io/virtocommerce/platform:3.1076.13
+#4 DONE 0.1s
+
+#5 [frontend internal] load metadata for docker.io/library/alpine:3.22
+#5 ...
+
+#6 [auth] nginxinc/nginx-unprivileged:pull token for registry-1.docker.io
+#6 DONE 0.0s
+
+#7 [auth] library/alpine:pull token for registry-1.docker.io
+#7 DONE 0.0s
+
+#8 [frontend internal] load metadata for docker.io/nginxinc/nginx-unprivileged:1.30.6-alpine
+#8 DONE 3.7s
+
+#5 [platform internal] load metadata for docker.io/library/alpine:3.22
+#5 DONE 3.7s
+
+#9 [platform internal] load .dockerignore
+#9 transferring context: 2B done
+#9 DONE 0.0s
+
+#10 [frontend internal] load .dockerignore
+#10 transferring context: 2B done
+#10 DONE 0.0s
+
+#11 [platform stage-1 1/5] FROM ghcr.io/virtocommerce/platform:3.1076.13@sha256:cf198c3edaf56de7bec725431d680407bc487f3a0558f7b493de6e46d4ca6eb7
+#11 resolve ghcr.io/virtocommerce/platform:3.1076.13@sha256:cf198c3edaf56de7bec725431d680407bc487f3a0558f7b493de6e46d4ca6eb7 0.0s done
+#11 DONE 0.0s
+
+#12 [platform modules 1/5] FROM docker.io/library/alpine:3.22@sha256:49340b346798875b5592e5d420241f2f9cfba5f47e62ebb1446a1b34734e898f
+#12 resolve docker.io/library/alpine:3.22@sha256:49340b346798875b5592e5d420241f2f9cfba5f47e62ebb1446a1b34734e898f 0.0s done
+#12 DONE 0.1s
+
+#13 [frontend stage-1 1/3] FROM docker.io/nginxinc/nginx-unprivileged:1.30.6-alpine@sha256:f5116ed4606f3eb015dd4a8e28cb9b351476dc0ad4bc6e9f93b19cec130cdf03
+#13 resolve docker.io/nginxinc/nginx-unprivileged:1.30.6-alpine@sha256:f5116ed4606f3eb015dd4a8e28cb9b351476dc0ad4bc6e9f93b19cec130cdf03 0.1s done
+#13 DONE 0.1s
+
+#14 [platform internal] load build context
+#14 transferring context: 9.44kB done
+#14 DONE 0.0s
+
+#15 [frontend internal] load build context
+#15 transferring context: 43B done
+#15 DONE 0.0s
+
+#16 [platform modules 2/5] RUN apk add --no-cache curl unzip
+#16 CACHED
+
+#17 [platform modules 3/5] WORKDIR /build
+#17 CACHED
+
+#18 [frontend download 4/4] RUN curl -fsSL --retry 5 --retry-all-errors -o frontend.zip       "https://github.com/VirtoCommerce/vc-frontend/releases/download/2.59.1/vc-frontend-2.59.1.zip"     && echo "1ee29552cf9c10760c078af626a3a521db3367a899613bb2f77f0695992d847f  frontend.zip" | sha256sum -c -     && unzip -q frontend.zip -d out     && test -f out/default/index.html     && find out/default -name '*.map' -delete
+#18 CACHED
+
+#19 [frontend download 2/4] RUN apk add --no-cache curl unzip
+#19 CACHED
+
+#20 [frontend stage-1 2/3] COPY default.conf.template /etc/nginx/templates/default.conf.template
+#20 CACHED
+
+#21 [frontend download 3/4] WORKDIR /src
+#21 CACHED
+
+#22 [frontend stage-1 3/3] COPY --from=download /src/out/default/ /usr/share/nginx/html/
+#22 CACHED
+
+#23 [frontend] exporting to image
+#23 exporting layers done
+#23 exporting manifest sha256:bfa81e567db6e5e246a8df7a94ca1f535045d2f56ceff2e2938c581762f37c6e 0.0s done
+#23 exporting config sha256:1c671eaf3c45f6a27b9f16019da3396d8bc33dd7c33435425b3822c96423c49d 0.0s done
+#23 exporting attestation manifest sha256:3866193c07f3ccca08b6a9c8174a9349f60fa48041e1a02561201d414fdd7677 0.0s done
+#23 exporting manifest list sha256:1e517fe31a4a26b52804f5ff4e0c07e4b2f275fcb3909f86503727d0dc2a9f5e 0.0s done
+#23 naming to docker.io/library/virto-frontend:2.59.1
+#23 naming to docker.io/library/virto-frontend:2.59.1 done
+#23 unpacking to docker.io/library/virto-frontend:2.59.1 0.0s done
+#23 DONE 0.1s
+
+#24 [platform modules 4/5] COPY modules.lock ./modules.lock
+#24 DONE 0.1s
+
+#25 [platform modules 5/5] RUN mkdir -p zips modules     && grep -v '^#' modules.lock | awk 'NF==3 {print $1" "$3}'        | xargs -P 6 -n 2 sh -c 'curl -fsSL --retry 5 --retry-delay 5 --retry-all-errors             --connect-timeout 30 -o "zips/$0.zip" "$1" && echo "downloaded $0"'     && for z in zips/*.zip; do          id=$(basename "$z" .zip);          unzip -q "$z" -d "modules/$id" || exit 1;        done     && expected=$(grep -cv '^#' modules.lock)     && actual=$(ls modules | wc -l)     && echo "modules installed: $actual of $expected"     && [ "$actual" -eq "$expected" ]
+#25 ...
+
+#26 [frontend] resolving provenance for metadata file
+#26 DONE 0.0s
+
+#25 [platform modules 5/5] RUN mkdir -p zips modules     && grep -v '^#' modules.lock | awk 'NF==3 {print $1" "$3}'        | xargs -P 6 -n 2 sh -c 'curl -fsSL --retry 5 --retry-delay 5 --retry-all-errors             --connect-timeout 30 -o "zips/$0.zip" "$1" && echo "downloaded $0"'     && for z in zips/*.zip; do          id=$(basename "$z" .zip);          unzip -q "$z" -d "modules/$id" || exit 1;        done     && expected=$(grep -cv '^#' modules.lock)     && actual=$(ls modules | wc -l)     && echo "modules installed: $actual of $expected"     && [ "$actual" -eq "$expected" ]
+#25 15.80 downloaded VirtoCommerce.AzureAD
+#25 15.88 downloaded VirtoCommerce.AuthorizeNetPayment
+#25 15.93 downloaded VirtoCommerce.AvalaraTax
+#25 15.94 downloaded VirtoCommerce.Assets
+#25 16.79 downloaded VirtoCommerce.AzureBlobAssets
+#25 17.62 downloaded VirtoCommerce.ApplicationInsights
+#25 31.55 downloaded VirtoCommerce.AzureSearch
+#25 31.57 downloaded VirtoCommerce.BackupRestore
+#25 31.66 downloaded VirtoCommerce.BackgroundJobs
+#25 32.37 downloaded VirtoCommerce.Cart
+#25 32.63 downloaded VirtoCommerce.BulkActionsModule
+#25 34.69 downloaded VirtoCommerce.Catalog
+#25 47.17 downloaded VirtoCommerce.CatalogPersonalization
+#25 47.23 downloaded VirtoCommerce.CatalogCsvImportModule
+#25 47.34 downloaded VirtoCommerce.CatalogPublishing
+#25 48.02 downloaded VirtoCommerce.Content
+#25 48.26 downloaded VirtoCommerce.Contracts
+#25 50.27 downloaded VirtoCommerce.Core
+#25 62.80 downloaded VirtoCommerce.CustomerReviews
+#25 62.86 downloaded VirtoCommerce.Customer
+#25 62.92 downloaded VirtoCommerce.DynamicAssociationsModule
+#25 64.11 downloaded VirtoCommerce.ElasticSearch8
+#25 64.19 downloaded VirtoCommerce.Export
+#25 65.83 downloaded VirtoCommerce.FileExperienceApi
+#25 78.37 downloaded VirtoCommerce.FileSystemAssets
+#25 78.48 downloaded VirtoCommerce.GDPR
+#25 78.48 downloaded VirtoCommerce.GoogleEcommerceAnalytics
+#25 79.64 downloaded VirtoCommerce.GoogleSSO
+#25 81.49 downloaded VirtoCommerce.Inventory
+#25 86.56 downloaded VirtoCommerce.ImageTools
+#25 94.16 downloaded VirtoCommerce.LuceneSearch
+#25 94.33 downloaded VirtoCommerce.Marketing
+#25 95.32 downloaded VirtoCommerce.OpenTelemetry
+#25 102.1 downloaded VirtoCommerce.Pages
+#25 103.8 downloaded VirtoCommerce.Notifications
+#25 109.9 downloaded VirtoCommerce.Payment
+#25 111.9 downloaded VirtoCommerce.Pricing
+#25 113.7 downloaded VirtoCommerce.PageBuilderModule
+#25 117.8 downloaded VirtoCommerce.ProfileExperienceApiModule
+#25 120.7 downloaded VirtoCommerce.PushMessages
+#25 122.3 downloaded VirtoCommerce.Orders
+#25 126.1 downloaded VirtoCommerce.Return
+#25 127.5 downloaded VirtoCommerce.Search
+#25 129.3 downloaded VirtoCommerce.Seo
+#25 133.4 downloaded VirtoCommerce.Shipping
+#25 136.4 downloaded VirtoCommerce.Sitemaps
+#25 137.9 downloaded VirtoCommerce.Store
+#25 141.7 downloaded VirtoCommerce.Subscription
+#25 143.1 downloaded VirtoCommerce.Tax
+#25 145.0 downloaded VirtoCommerce.UCP
+#25 149.0 downloaded VirtoCommerce.WebHooks
+#25 151.9 downloaded VirtoCommerce.WhiteLabeling
+#25 153.7 downloaded VirtoCommerce.Xapi
+#25 157.4 downloaded VirtoCommerce.XCart
+#25 158.8 downloaded VirtoCommerce.XCatalog
+#25 160.7 downloaded VirtoCommerce.XCMS
+#25 164.6 downloaded VirtoCommerce.XFrontend
+#25 167.5 downloaded VirtoCommerce.XOrder
+#25 169.3 downloaded VirtoCommerce.XPickup
+#25 173.1 downloaded VirtoCommerce.OpenSearch
+#25 175.8 modules installed: 60 of 60
+#25 DONE 176.4s
+
+#27 [platform stage-1 2/5] RUN apt-get update     && apt-get install -y --no-install-recommends curl     && apt-get clean     && rm -rf /var/lib/apt/lists/*
+#27 CACHED
+
+#28 [platform stage-1 3/5] WORKDIR /opt/virtocommerce/platform
+#28 CACHED
+
+#29 [platform stage-1 4/5] COPY --from=modules /build/modules ./modules
+#29 DONE 0.3s
+
+#30 [platform stage-1 5/5] RUN mkdir -p app_data/modules app_data/lucene wwwroot/cms-content wwwroot/assets     && (find ./modules -path "*/bin/runtimes/linux-x64/**/*" -type f          -exec cp "{}" ./app_data/modules/ ; || true)     && chown -R 1654:1654 /opt/virtocommerce/platform
+#30 DONE 0.5s
+
+#31 [platform] exporting to image
+#31 exporting layers
+#31 exporting layers 13.0s done
+#31 exporting manifest sha256:b21de8a2b11f5f61ff2498ca089ae80e4c7dd7830ce4926472289deadda3fa6a
+#31 exporting manifest sha256:b21de8a2b11f5f61ff2498ca089ae80e4c7dd7830ce4926472289deadda3fa6a done
+#31 exporting config sha256:b8098f9a7c80714679e7ce99ca5c35f192d29a7f9a5ed77276e99399681ae50b done
+#31 exporting attestation manifest sha256:cacebfbadf818efd6e6af924752b1129c913e2b0f182799b307dde2831602ebc 0.0s done
+#31 exporting manifest list sha256:2b2ede5136128ec61df29d25e9c22ef08d2ecbe5d0c5622aa3dd553814485de7 done
+#31 naming to docker.io/library/virto-platform:3.1076.13-b16.0.13 done
+#31 DONE 13.1s
+
+#32 [platform] resolving provenance for metadata file
+#32 DONE 0.1s
+ Image virto-frontend:2.59.1 Built 
+ Image virto-platform:3.1076.13-b16.0.13 Built 
+[22:35:15] Starting containers
+ Volume virto_cachedata Creating 
+ Network virto_backend Creating 
+ Volume virto_cachedata Creating 
+ Volume virto_platform-assets Creating 
+ Volume virto_platform-content Creating 
+ Network virto_frontend Creating 
+ Volume virto_pgdata Creating 
+ Volume virto_pgdata Creating 
+ Volume virto_platform-content Creating 
+ Network virto_backend Creating 
+ Network virto_frontend Creating 
+ Volume virto_platform-assets Creating 
+ Volume virto_platform-search Creating 
+ Volume virto_platform-search Creating 
+ Volume virto_platform-assets Created 
+ Volume virto_platform-assets Created 
+ Volume virto_cachedata Created 
+ Volume virto_cachedata Created 
+ Volume virto_platform-search Created 
+ Volume virto_platform-search Created 
+ Volume virto_platform-content Created 
+ Volume virto_platform-content Created 
+ Network virto_backend Created 
+ Network virto_backend Created 
+ Container virto-cache-1 Creating 
+ Volume virto_pgdata Created 
+ Volume virto_pgdata Created 
+ Container virto-db-1 Creating 
+ Network virto_frontend Created 
+ Network virto_frontend Created 
+ Container virto-cache-1 Created 
+ Container virto-db-1 Created 
+ Container virto-platform-1 Creating 
+ Container virto-platform-1 Created 
+ Container virto-frontend-1 Creating 
+ Container virto-frontend-1 Created 
+ Container virto-cache-1 Starting 
+ Container virto-db-1 Starting 
+ Container virto-cache-1 Started 
+ Container virto-db-1 Started 
+ Container virto-db-1 Waiting 
+ Container virto-cache-1 Waiting 
+ Container virto-db-1 Healthy 
+ Container virto-cache-1 Healthy 
+ Container virto-platform-1 Starting 
+ Container virto-platform-1 Started 
+ Container virto-frontend-1 Starting 
+ Container virto-frontend-1 Started 
+[22:35:30] db ready after 0s
+[22:35:30] cache ready after 0s
+[22:35:30] Waiting for the platform (first start runs database migrations, 1 to 5 minutes)
+[22:35:51] platform ready after 21s
+[22:35:51] frontend ready after 0s
+[ OK ] all containers healthy
+[ OK ] default admin password replaced
+[22:35:54] Importing sample data (about 60 MB download)
+[22:35:54]   
+[22:36:05]   Sample data 43 MB of 59 MB downloading...
+[22:36:15]   Importing 'VirtoCommerce.Inventory'
+[22:36:25]   Sample data import process completed successfully.
+[ OK ] sample data imported
+[22:36:25] Building search index
+[22:36:25]   Starting indexation...
+[22:36:35]   Indexation completed successfully
+[ OK ] search index built
+[ OK ] release 1 recorded in SSM Parameter Store (Floci)
+
+[ OK ] Storefront:   http://localhost:8088
+[ OK ] Admin (back office): http://localhost:8090  user: admin  password: see VC_ADMIN_PASSWORD in .env
+[22:36:36] Run ./scripts/validate.sh to check everything

@@ -1,0 +1,14 @@
+.env
+*.tfstate
+*.tfstate.*
+.terraform/
+*.tfplan
+crash.log
+backups/
+.floci-data/
+.DS_Store
+terraform.tfvars
+backend.hcl
+.releases
+.rollback.log
+.env.bak.*

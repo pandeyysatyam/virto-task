@@ -1,0 +1,22 @@
+== frontend stopped on purpose ==
+[WARN] frontend is stopped
+[22:48:10] published UnhealthyServices=1 to Virto/virto-local
+[22:48:11] alarm virto-local-unhealthy-services: OK
+[WARN] frontend is stopped
+[22:49:02] published UnhealthyServices=1 to Virto/virto-local
+[22:49:03] alarm virto-local-unhealthy-services: OK
+[WARN] frontend is stopped
+[22:49:54] published UnhealthyServices=1 to Virto/virto-local
+[22:49:55] alarm virto-local-unhealthy-services: OK
+== frontend started again ==
+[22:50:47] published UnhealthyServices=0 to Virto/virto-local
+[22:50:48] alarm virto-local-unhealthy-services: ALARM
+[22:51:39] published UnhealthyServices=0 to Virto/virto-local
+[22:51:40] alarm virto-local-unhealthy-services: OK
+[22:52:31] published UnhealthyServices=0 to Virto/virto-local
+[22:52:32] alarm virto-local-unhealthy-services: OK
+2026-11-18T22:51:08.847000+05:30	Alarm updated from ALARM to OK
+2026-11-18T22:50:08.909000+05:30	Alarm updated from OK to ALARM
+2026-11-18T22:45:08.870000+05:30	Alarm updated from ALARM to OK
+2026-11-18T22:31:08.845000+05:30	Alarm updated from INSUFFICIENT_DATA to ALARM
+2026-11-18T22:31:06.898000+05:30	Alarm "virto-local-unhealthy-services" created

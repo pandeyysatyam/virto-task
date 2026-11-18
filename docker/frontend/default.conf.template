@@ -1,0 +1,83 @@
+# Based on the nginx.conf from VirtoCommerce/start-local, changed to:
+#  - listen on 8080 (unprivileged image)
+#  - read the platform address from ${PLATFORM_UPSTREAM}
+#  - resolve the platform name at request time, so nginx starts even when the
+#    platform container is still booting and follows it if its IP changes
+
+server {
+    listen       8080;
+    server_name  _;
+    server_tokens off;
+
+    root  /usr/share/nginx/html;
+    index index.html;
+
+    resolver ${NGINX_RESOLVER} valid=10s ipv6=off;
+    set $platform http://${PLATFORM_UPSTREAM};
+
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    client_max_body_size 50m;
+
+    proxy_buffer_size        128k;
+    proxy_buffers            4 256k;
+    proxy_busy_buffers_size  256k;
+    proxy_connect_timeout    10s;
+    proxy_send_timeout       120s;
+    proxy_read_timeout       120s;
+
+    proxy_set_header Host              $host;
+    proxy_set_header X-Real-IP         $remote_addr;
+    proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    # liveness of nginx itself (used by Docker and later by the ALB)
+    location = /nginx-health {
+        access_log off;
+        default_type text/plain;
+        return 200 "ok\n";
+    }
+
+    # SPA routes
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location = /index.html {
+        add_header Cache-Control "no-cache" always;
+        add_header X-Content-Type-Options "nosniff" always;
+    }
+
+    # hashed build files can be cached for a long time
+    location /assets/ {
+        try_files $uri =404;
+        expires 30d;
+        add_header Cache-Control "public, immutable" always;
+    }
+
+    # API paths that belong to the platform
+    location /graphql        { proxy_pass $platform; }
+    location /connect/token  { proxy_pass $platform; }
+    location /revoke/token   { proxy_pass $platform; }
+    location /externalsignin { proxy_pass $platform; }
+    location /signin-oidc    { proxy_pass $platform; }
+    location /files          { proxy_pass $platform; }
+    location /api/files      { proxy_pass $platform; }
+    location /cms-content    { proxy_pass $platform; }
+    location /storefrontapi  { proxy_pass $platform; }
+
+    # SignalR (push messages)
+    location /hub/ {
+        proxy_pass $platform;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+
+    error_page 500 502 503 504 /50x.html;
+    location = /50x.html {
+        root /usr/share/nginx/html;
+    }
+}

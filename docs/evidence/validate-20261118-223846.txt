@@ -1,0 +1,41 @@
+Validation run 2026-11-18T17:08:46Z
+------------------------------------------------------------
+SERVICE    IMAGE                               STATUS                   PORTS
+cache      valkey/valkey:8.1.11-alpine3.24     Up 3 minutes (healthy)   6379/tcp
+db         postgres:18.7-alpine3.24            Up 3 minutes (healthy)   5432/tcp
+frontend   virto-frontend:2.59.1               Up 3 minutes (healthy)   127.0.0.1:8088->8080/tcp
+platform   virto-platform:3.1076.13-b16.0.13   Up 3 minutes (healthy)   80/tcp, 127.0.0.1:8090->8080/tcp
+------------------------------------------------------------
+# containers
+[PASS] db container is healthy
+[PASS] cache container is healthy
+[PASS] platform container is healthy
+[PASS] frontend container is healthy
+# platform
+[PASS] platform /health reports every check Healthy
+[PASS] admin can log in with the password from .env
+[PASS] default password admin/store is rejected
+[PASS] admin UI page is served
+# frontend
+[PASS] storefront index.html is served (200)
+[PASS] unknown SPA route falls back to index.html
+[PASS] security headers present
+# frontend to platform (through nginx)
+[PASS] GraphQL via frontend returns the B2B store
+[PASS] product search via frontend returns products
+[PASS] token endpoint is reachable via frontend
+# network boundaries
+[PASS] database port is not published on the host
+[PASS] cache port is not published on the host
+[PASS] backend network is internal (no internet)
+[PASS] frontend container can not reach the database
+[PASS] platform and frontend ports bound to 127.0.0.1 only
+# containers run as non-root
+[PASS] platform runs as uid 1654
+[PASS] frontend runs as uid 101 with read-only root fs
+# emulated AWS (Floci)
+[PASS] Secrets Manager has the db secret
+[PASS] S3 backup bucket exists with versioning
+[PASS] CloudWatch log groups exist
+------------------------------------------------------------
+passed: 24  failed: 0

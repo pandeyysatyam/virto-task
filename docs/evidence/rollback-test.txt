@@ -1,0 +1,29 @@
+== deploy release 2 (frontend tag 2.59.1-r2) ==
+[22:53:07] platform image: virto-platform:3.1076.13-b16.0.13
+[22:53:07] frontend image: virto-frontend:2.59.1-r2
+[ OK ] local backup: backups/20261118-172307-pre-deploy ( 59M)
+[ OK ] uploaded to s3://virto-local-backups-000000000000/platform/backups/20261118-172307-pre-deploy/ (Floci)
+[ OK ] all containers healthy
+[ OK ] sample store already present (B2B-store)
+[ OK ] search index has 389 products
+[ OK ] default admin password is not accepted
+[ OK ] release 2 recorded in SSM Parameter Store (Floci)
+[ OK ] Storefront:   http://localhost:8088
+[ OK ] Admin (back office): http://localhost:8090  user: admin  password: see VC_ADMIN_PASSWORD in .env
+frontend virto-frontend:2.59.1-r2 Up 6 seconds (healthy)
+
+== history ==
+ 1. 2026-11-18T17:06:35Z virto-platform:3.1076.13-b16.0.13 virto-frontend:2.59.1 2b2ede513612 1e517fe31a4a
+ 2. 2026-11-18T17:23:17Z virto-platform:3.1076.13-b16.0.13 virto-frontend:2.59.1-r2 2b2ede513612 1e517fe31a4a
+
+== rollback ==
+[22:53:18] current:  virto-platform:3.1076.13-b16.0.13 virto-frontend:2.59.1-r2
+[22:53:18] rollback: virto-platform:3.1076.13-b16.0.13 virto-frontend:2.59.1
+[22:53:19] platform ready after 0s
+[22:53:24] frontend ready after 5s
+[ OK ] rolled back. Run ./scripts/validate.sh
+
+frontend virto-frontend:2.59.1 Up 5 seconds (healthy)
+FRONTEND_LOCAL_IMAGE=virto-frontend:2.59.1
+/virto/local/releases/0001	2026-11-18T17:06:35Z virto-platform:3.1076.13-b16.0.13 virto-frontend:2.59.1 2b2ede513612 1e517fe31a4a
+/virto/local/releases/0002	2026-11-18T17:23:17Z virto-platform:3.1076.13-b16.0.13 virto-frontend:2.59.1-r2 2b2ede513612 1e517fe31a4a

@@ -1,0 +1,29 @@
+[22:43:40] 1. Backup
+[ OK ] backup 20261118-171340-restore-test
+[22:43:43] 2. Creating a contact after the backup
+[ OK ] contact 01a1efa6-6cab-7078-bbe1-81ee1a80a09b exists before restore
+[22:43:44] 3. Removing local copy backups/20261118-171340-restore-test (restore has to use S3)
+[22:43:44] 4. Restore
+[22:43:44] Downloading 20261118-171340-restore-test from s3://virto-local-backups-000000000000
+db.dump: OK
+assets.tar.gz: OK
+content.tar.gz: OK
+[ OK ] checksums verified for 20261118-171340-restore-test
+[22:43:45] Stopping platform and frontend
+[22:43:45] Recreating database virto
+[ OK ] database restored
+[22:43:48] Restoring volume platform-assets
+[22:43:49] Restoring volume platform-content
+[22:43:50] Starting platform and frontend
+[22:44:06] platform ready after 15s
+[WARN] sample data skipped
+[22:44:08] Building search index
+[22:44:08]   Starting indexation...
+[22:44:18]   Indexation completed successfully
+[ OK ] search index built
+[ OK ] default admin password is not accepted
+[ OK ] restore of 20261118-171340-restore-test complete
+[22:44:19] 5. Checks
+[ OK ] contact 01a1efa6-6cab-7078-bbe1-81ee1a80a09b created after the backup is gone (database is back at the backup point)
+[ OK ] storefront lists 147 products after restore
+[ OK ] BACKUP / RESTORE TEST PASSED

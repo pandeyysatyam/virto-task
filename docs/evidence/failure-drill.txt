@@ -1,0 +1,17 @@
+[22:41:32] === Drill 1: database outage ===
+[22:41:36] before: /health HTTP 200 (PostgreSql Healthy), login: ok, product search: ok, 147 products, shop page HTTP 200
+[22:41:36] stopping db
+[22:41:51] during: /health HTTP 503 (PostgreSql Unhealthy), login: failed, product search: ok, 147 products, shop page HTTP 200
+[22:41:51] starting db
+[22:41:57] db ready after 5s
+[22:41:57] platform /health ready after 0s
+[22:41:57] after:  /health HTTP 200 (PostgreSql Healthy), login: ok, product search: ok, 147 products, shop page HTTP 200
+[ OK ] recovered 6s after the database came back, platform was not restarted (Npgsql pool reconnects)
+
+[22:41:57] === Drill 2: platform process crash ===
+[22:41:58] before: restart count 1, /health HTTP 200 (PostgreSql Healthy), login: ok, product search: ok, 147 products, shop page HTTP 200
+[22:41:58] SIGKILL to the platform process (pid 283558 in the Docker host namespace)
+[22:42:01] during: container running, shop page HTTP 200, product search: no response
+[22:42:12] platform healthy ready after 11s
+[22:42:15] after:  restart count 2 (restart: unless-stopped), /health HTTP 200 (PostgreSql Healthy), login: ok, product search: ok, 147 products, shop page HTTP 200
+[ OK ] platform back 14s after the crash, nginx reconnected on its own

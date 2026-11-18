@@ -1,0 +1,4 @@
+source-path=SCRIPTDIR
+external-sources=true
+# check() in validate.sh is called indirectly
+disable=SC2317

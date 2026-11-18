@@ -1,0 +1,196 @@
+# CI for the Virto Commerce deployment.
+#
+#   lint       shellcheck, hadolint, compose config, terraform fmt
+#   terraform  validate both environments, tflint, checkov (security rules)
+#   build      build both images, Trivy scan (fail on CRITICAL with a fix)
+#   e2e        start Floci + the full stack on the runner, run validate and the
+#              persistence test, keep the evidence as a build artifact
+#   deploy     (manual, main only) push to ECR and roll ECS through GitHub OIDC.
+#              Disabled until an AWS account is approved for this project.
+
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      deploy_to_aws:
+        description: "Deploy to AWS (needs AWS_DEPLOY_ROLE_ARN and approval)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TF_VERSION: 1.15.4
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: shellcheck
+        run: shellcheck scripts/*.sh
+      - name: hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          recursive: true
+          dockerfile: "Dockerfile"
+          failure-threshold: error
+      - name: compose config
+        run: |
+          cp .env.example .env
+          docker compose config -q
+          docker compose -f infra/floci/docker-compose.yml config -q
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+      - name: terraform fmt
+        run: terraform fmt -recursive -check infra/terraform
+
+  terraform:
+    runs-on: ubuntu-24.04
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+      - name: validate floci-local
+        run: |
+          terraform -chdir=infra/terraform/envs/floci-local init -backend=false -input=false
+          terraform -chdir=infra/terraform/envs/floci-local validate
+      - name: validate aws-prod
+        run: |
+          terraform -chdir=infra/terraform/envs/aws-prod init -backend=false -input=false
+          terraform -chdir=infra/terraform/envs/aws-prod validate
+      - uses: terraform-linters/setup-tflint@v4
+      - name: tflint
+        run: tflint --init && tflint --recursive --chdir infra/terraform
+      - name: checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: infra/terraform
+          framework: terraform
+          soft_fail: true # report only: findings are reviewed in docs/security-operations.md
+          output_format: cli
+
+  build:
+    runs-on: ubuntu-24.04
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: build images
+        run: |
+          cp .env.example .env
+          docker compose build
+      - name: trivy scan platform
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: virto-platform:3.1076.13-b16.0.13
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "0"
+          format: table
+      - name: trivy scan frontend (gate)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: virto-frontend:2.59.1
+          severity: CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+      - name: save images for e2e
+        run: docker save virto-platform:3.1076.13-b16.0.13 virto-frontend:2.59.1 | gzip > images.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: images
+          path: images.tar.gz
+          retention-days: 1
+
+  e2e:
+    runs-on: ubuntu-24.04
+    needs: [build, terraform]
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: images
+      - run: gunzip -c images.tar.gz | docker load
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+      - name: setup (Floci + Terraform + .env from Secrets Manager)
+        run: ./scripts/setup.sh
+      - name: deploy
+        run: ./scripts/deploy.sh --no-build
+      - name: validate
+        run: ./scripts/validate.sh --save
+      - name: persistence test
+        run: ./scripts/test-persistence.sh | tee docs/evidence/persistence-ci.txt
+      - name: backup to S3 (Floci)
+        run: ./scripts/backup.sh --tag ci
+      - name: logs on failure
+        if: failure()
+        run: docker compose logs --tail 300
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: evidence
+          path: docs/evidence/
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.deploy_to_aws
+    runs-on: ubuntu-24.04
+    needs: e2e
+    environment: production # requires a manual approval in GitHub
+    permissions:
+      contents: read
+      id-token: write # GitHub OIDC -> AWS, no stored access keys
+    env:
+      AWS_REGION: ap-south-1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: images
+      - run: gunzip -c images.tar.gz | docker load
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: push images
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+        run: |
+          for pair in "virto-platform:3.1076.13-b16.0.13 platform" "virto-frontend:2.59.1 frontend"; do
+            set -- $pair
+            tag="${1#*:}-${GITHUB_SHA::7}"
+            docker tag "$1" "$REGISTRY/virto-prod/$2:$tag"
+            docker push "$REGISTRY/virto-prod/$2:$tag"
+            echo "${2}_image=$REGISTRY/virto-prod/$2:$tag" >> "$GITHUB_ENV"
+          done
+      - name: roll ECS services
+        run: |
+          for svc in platform frontend; do
+            img_var="${svc}_image"
+            td=$(aws ecs describe-task-definition --task-definition "virto-prod-$svc" --query taskDefinition)
+            new=$(echo "$td" | jq --arg img "${!img_var}" '.containerDefinitions[0].image=$img
+              | {family, taskRoleArn, executionRoleArn, networkMode, containerDefinitions, volumes,
+                 requiresCompatibilities, cpu, memory, runtimePlatform}')
+            arn=$(aws ecs register-task-definition --cli-input-json "$new" --query taskDefinition.taskDefinitionArn --output text)
+            aws ecs update-service --cluster virto-prod --service "$svc" --task-definition "$arn" >/dev/null
+          done
+          # circuit breaker rolls back automatically if the new tasks fail health checks
+          aws ecs wait services-stable --cluster virto-prod --services platform frontend

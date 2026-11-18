@@ -1,0 +1,4 @@
+[22:44:28] published UnhealthyServices=0 to Virto/virto-local
+[22:44:28] shipped 23 platform log lines to /virto-local/platform
+[22:44:29] shipped 85 frontend log lines to /virto-local/frontend
+[22:44:30] alarm virto-local-unhealthy-services: ALARM

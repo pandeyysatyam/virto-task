@@ -1,0 +1,76 @@
+Production Terraform (envs/aws-prod) planned and applied against Floci 2.5.0
+Run: 2026-11-18, scripts/plan-prod-on-floci.sh --apply (override file switches provider + backend to Floci)
+This is an EMULATOR run. Nothing was created on real AWS.
+
+== plan ==
+Plan: 133 to add, 0 to change, 0 to destroy.
+
+== apply result ==
+resources in state after apply: 123 of 133
+
+created, by resource type:
+   9 aws_vpc_security_group_ingress_rule
+   9 aws_cloudwatch_metric_alarm
+   7 aws_security_group
+   6 aws_subnet
+   6 aws_route_table_association
+   5 aws_iam_role
+   4 random_password
+   4 aws_vpc_security_group_egress_rule
+   4 aws_secretsmanager_secret_version
+   4 aws_secretsmanager_secret
+   4 aws_route_table
+   4 aws_route53_record
+   3 aws_route
+   2 aws_lb_target_group
+   2 aws_lb_listener_rule
+   2 aws_lb_listener
+   2 aws_efs_mount_target
+   2 aws_ecr_repository
+   2 aws_ecr_lifecycle_policy
+   2 aws_cloudwatch_log_group
+   1 aws_vpc_endpoint
+   1 aws_vpc
+   1 aws_sns_topic
+   1 aws_service_discovery_service
+   1 aws_service_discovery_private_dns_namespace
+   1 aws_nat_gateway
+   1 aws_lb
+   1 aws_kms_key
+   1 aws_kms_alias
+   1 aws_internet_gateway
+   1 aws_iam_role_policy_attachment
+   1 aws_iam_openid_connect_provider
+   1 aws_elasticache_subnet_group
+   1 aws_elasticache_replication_group
+   1 aws_eip
+   1 aws_efs_file_system
+   1 aws_efs_backup_policy
+   1 aws_efs_access_point
+   1 aws_ecs_task_definition
+   1 aws_ecs_service
+   1 aws_ecs_cluster
+   1 aws_db_subnet_group
+   1 aws_db_parameter_group
+   1 aws_db_instance
+   1 aws_backup_vault
+   1 aws_backup_selection
+   1 aws_backup_plan
+   1 aws_appautoscaling_target
+   1 aws_appautoscaling_policy
+   1 aws_acm_certificate_validation
+   1 aws_acm_certificate
+
+== errors (Floci limitations) ==
+Error: execution halted
+Error: execution halted
+Error: reading OpenSearch Domain (arn:aws:es:us-east-1:000000000000:domain/virto-prodsim-search): operation error OpenSearch: DescribeDomain, context canceled
+Error: listing tags for S3 (Simple Storage) Bucket (virto-prodsim-backups-000000000000): operation error S3 Control: ListTagsForResource, https response error StatusCode: 403, RequestID: VJ9BJZFBP41JGD5V, HostID: <removed>, api error AccessDenied: Access Denied
+
+Notes:
+1. aws_opensearch_domain: Floci runs a real OpenSearch container per domain and needs the Docker socket.
+   Our Floci container does not mount /var/run/docker.sock (security choice), so the domain never left 'processing'.
+   The apply was stopped after ~4 minutes of waiting.
+2. aws_s3_bucket tags: the DenyInsecureTransport bucket policy is enforced by Floci and the endpoint is plain HTTP,
+   so the provider's tag read was denied. On AWS the provider uses HTTPS and the policy allows it.
+   This is why envs/floci-local sets enforce_tls_bucket_policy = false.

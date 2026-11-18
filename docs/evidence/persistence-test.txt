@@ -1,0 +1,60 @@
+[22:39:05] 1. Creating contact 'persist-1795021745'
+[ OK ] contact id 01a1efa2-2e5f-75a6-b8c7-5c563c26faeb
+[22:39:05] 2. Uploading asset persist-1795021745.txt
+[ OK ] asset at http://localhost:8090/assets/persistence/persist-1795021745.txt
+[22:39:06] 3. Recreating all containers (docker compose down && up, volumes kept)
+ Container virto-frontend-1 Stopping 
+ Container virto-frontend-1 Stopped 
+ Container virto-frontend-1 Removing 
+ Container virto-frontend-1 Removed 
+ Container virto-platform-1 Stopping 
+ Container virto-platform-1 Stopped 
+ Container virto-platform-1 Removing 
+ Container virto-platform-1 Removed 
+ Container virto-db-1 Stopping 
+ Container virto-cache-1 Stopping 
+ Container virto-cache-1 Stopped 
+ Container virto-cache-1 Removing 
+ Container virto-cache-1 Removed 
+ Container virto-db-1 Stopped 
+ Container virto-db-1 Removing 
+ Container virto-db-1 Removed 
+ Network virto_backend Removing 
+ Network virto_frontend Removing 
+ Network virto_backend Removed 
+ Network virto_frontend Removed 
+ Network virto_backend Creating 
+ Network virto_frontend Creating 
+ Network virto_backend Creating 
+ Network virto_frontend Creating 
+ Network virto_backend Created 
+ Network virto_backend Created 
+ Container virto-cache-1 Creating 
+ Container virto-db-1 Creating 
+ Network virto_frontend Created 
+ Network virto_frontend Created 
+ Container virto-cache-1 Created 
+ Container virto-db-1 Created 
+ Container virto-platform-1 Creating 
+ Container virto-platform-1 Created 
+ Container virto-frontend-1 Creating 
+ Container virto-frontend-1 Created 
+ Container virto-cache-1 Starting 
+ Container virto-db-1 Starting 
+ Container virto-cache-1 Started 
+ Container virto-db-1 Started 
+ Container virto-cache-1 Waiting 
+ Container virto-db-1 Waiting 
+ Container virto-db-1 Healthy 
+ Container virto-cache-1 Healthy 
+ Container virto-platform-1 Starting 
+ Container virto-platform-1 Started 
+ Container virto-frontend-1 Starting 
+ Container virto-frontend-1 Started 
+[22:39:28] platform ready after 10s
+[22:39:29] frontend ready after 1s
+[22:39:29] 4. Reading back
+[ OK ] contact 01a1efa2-2e5f-75a6-b8c7-5c563c26faeb still in the database
+[ OK ] asset file still on the volume
+[ OK ] search index still has 147 products
+[ OK ] PERSISTENCE TEST PASSED

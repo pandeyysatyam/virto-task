@@ -1,0 +1,36 @@
+# Floci: local AWS emulator. Nothing here talks to real AWS.
+#
+# Start:  docker compose -f infra/floci/docker-compose.yml up -d
+# Check:  aws --endpoint-url http://localhost:4566 sts get-caller-identity
+#
+# State is kept in a named volume (hybrid mode = memory + flush to disk every
+# few seconds), so S3 objects and secrets survive a Floci restart.
+
+name: floci
+
+services:
+  floci:
+    image: floci/floci:2.5.0
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:4566:4566"
+    environment:
+      FLOCI_DEFAULT_REGION: us-east-1
+      FLOCI_STORAGE_MODE: hybrid
+      FLOCI_STORAGE_PERSISTENT_PATH: /app/data
+      FLOCI_SERVICES_UI_ENABLED: "false"
+    volumes:
+      - floci-data:/app/data
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:4566/_floci/health || curl -fsS http://localhost:4566/_floci/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  floci-data:

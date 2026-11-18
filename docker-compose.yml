@@ -1,0 +1,146 @@
+# Local deployment of Virto Commerce: platform + frontend + PostgreSQL + Valkey.
+#
+# Start:   ./scripts/deploy.sh          (or: docker compose up -d --build)
+# Stop:    docker compose stop
+# Remove:  ./scripts/teardown.sh        (keeps data volumes unless --volumes)
+#
+# All settings come from .env (copy .env.example or run ./scripts/setup.sh).
+
+name: virto
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+services:
+
+  db:
+    image: postgres:18.7-alpine3.24
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    logging: *default-logging
+
+  cache:
+    image: valkey/valkey:8.1.11-alpine3.24
+    restart: unless-stopped
+    command: ["valkey-server", "--requirepass", "${CACHE_PASSWORD}", "--appendonly", "yes"]
+    environment:
+      REDISCLI_AUTH: ${CACHE_PASSWORD}
+    volumes:
+      - cachedata:/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "valkey-cli ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging: *default-logging
+
+  platform:
+    build:
+      context: ./docker/platform
+      args:
+        PLATFORM_IMAGE: ${PLATFORM_IMAGE}
+    image: ${PLATFORM_LOCAL_IMAGE}
+    platform: linux/amd64
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      DatabaseProvider: PostgreSql
+      ConnectionStrings__VirtoCommerce: "Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+      ConnectionStrings__RedisConnectionString: "cache:6379,password=${CACHE_PASSWORD},abortConnect=false"
+      # Local only: no TLS in front of the platform. On AWS, TLS ends at the ALB.
+      VirtoCommerce__AllowInsecureHttp: "true"
+      VirtoCommerce__Hangfire__JobStorageType: Database
+      Search__Provider: Lucene
+      Search__Lucene__Path: app_data/lucene
+      Search__Scope: virto
+      Assets__Provider: FileSystem
+      Assets__FileSystem__RootPath: "~/assets"
+      Assets__FileSystem__PublicUrl: "${PLATFORM_PUBLIC_URL}/assets/"
+      Content__FileSystem__PublicUrl: "${PLATFORM_PUBLIC_URL}/cms-content/"
+      VirtoCommerce__PlatformUI__EnvironmentBanner__Name: local
+      VirtoCommerce__PlatformUI__EnvironmentBanner__ThemePreset: dev
+    ports:
+      - "127.0.0.1:${PLATFORM_PORT}:8080"
+    volumes:
+      - platform-assets:/opt/virtocommerce/platform/wwwroot/assets
+      - platform-content:/opt/virtocommerce/platform/wwwroot/cms-content
+      - platform-search:/opt/virtocommerce/platform/app_data/lucene
+    networks:
+      - backend
+      - frontend
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 600s
+    mem_limit: 4g
+    logging: *default-logging
+
+  frontend:
+    build:
+      context: ./docker/frontend
+      args:
+        FRONTEND_VERSION: ${FRONTEND_VERSION}
+    image: ${FRONTEND_LOCAL_IMAGE}
+    restart: unless-stopped
+    depends_on:
+      platform:
+        condition: service_started
+    environment:
+      PLATFORM_UPSTREAM: platform:8080
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT}:8080"
+    networks:
+      - frontend
+    # Root filesystem is read-only. nginx (uid 101) still needs a few writable
+    # folders: the rendered config, its cache and the pid file in /tmp.
+    read_only: true
+    tmpfs:
+      - /tmp:uid=101,gid=101
+      - /var/cache/nginx:uid=101,gid=101
+      - /etc/nginx/conf.d:uid=101,gid=101
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/nginx-health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    logging: *default-logging
+
+networks:
+  # db and cache live here only. "internal" means no route to the outside world
+  # and nothing published to the host, like private subnets on AWS.
+  backend:
+    internal: true
+  frontend: {}
+
+volumes:
+  pgdata:
+  cachedata:
+  platform-assets:
+  platform-content:
+  platform-search:
