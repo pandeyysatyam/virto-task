@@ -29,7 +29,8 @@ sed "s/REPLACED_BY_SCRIPT/$ZONE/" infra/terraform/floci-overrides/floci.tfvars >
 
 cd "$WORK" || die "can not enter $WORK"
 terraform init -input=false >/dev/null
-terraform plan -input=false -out=tf.plan | tail -n 3
+terraform plan -input=false -out=tf.plan -no-color > plan.log || { tail -n 30 plan.log; die "plan failed"; }
+grep -E "^Plan:|No changes" plan.log
 if [[ "${1:-}" == "--apply" ]]; then
   terraform apply -input=false -auto-approve tf.plan
 fi

@@ -1,6 +1,7 @@
 # Public ALB. TLS ends here with an ACM certificate.
 #   shop domain  -> frontend target group (nginx, which proxies API calls to the platform)
 #   admin domain -> platform target group, only from admin_allowed_cidrs
+#   anything else -> 404
 
 resource "aws_lb" "this" {
   name                       = "${var.name}-alb"
@@ -86,7 +87,29 @@ resource "aws_lb_listener" "https" {
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
   certificate_arn   = var.certificate_arn
 
+  # Unknown host names (for example scans that hit the ALB DNS name or IP)
+  # get a plain 404 instead of the shop
   default_action {
+    type = "fixed-response"
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "Not found"
+      status_code  = "404"
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "shop" {
+  listener_arn = aws_lb_listener.https.arn
+  priority     = 30
+
+  condition {
+    host_header {
+      values = [var.shop_domain]
+    }
+  }
+
+  action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.frontend.arn
   }

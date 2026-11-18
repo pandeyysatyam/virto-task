@@ -93,7 +93,7 @@ jobs:
           cp .env.example .env
           docker compose build
       - name: trivy scan platform
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0, pinned by commit
         with:
           image-ref: virto-platform:3.1076.13-b16.0.13
           severity: CRITICAL,HIGH
@@ -101,7 +101,7 @@ jobs:
           exit-code: "0"
           format: table
       - name: trivy scan frontend (gate)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0, pinned by commit
         with:
           image-ref: virto-frontend:2.59.1
           severity: CRITICAL

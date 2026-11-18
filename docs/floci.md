@@ -83,7 +83,7 @@ the override file `infra/terraform/floci-overrides/floci_override.tf`
 (Terraform merges `*_override.tf` files over the main config) and runs
 `plan`. `--apply` also applies. The real folder is never changed.
 
-Result (`docs/evidence/prod-stack-on-floci.txt`): plan 133 resources, apply
+Result (`docs/evidence/prod-stack-on-floci.txt`): plan 133 resources at the time (134 now, after adding the shop host rule), apply
 created 123 including VPC, NAT, ALB with listeners and rules, ECS cluster,
 task definitions and services, RDS instance record, ElastiCache group, EFS,
 ACM, Route 53 records, AWS Backup plan, alarms. This found two bugs that

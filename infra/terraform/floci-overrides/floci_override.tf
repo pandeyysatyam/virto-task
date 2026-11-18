@@ -1,3 +1,4 @@
+# tflint-ignore-file: terraform_required_version  # override file, the version is set in envs/aws-prod
 # Terraform override file. scripts/plan-prod-on-floci.sh copies envs/aws-prod
 # into a temporary folder, drops this file next to it and runs plan/apply
 # against Floci. The real aws-prod folder is never modified, so emulator

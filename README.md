@@ -186,7 +186,7 @@ CI): [docs/aws-deployment.md](docs/aws-deployment.md).
 
 ```bash
 make prod-validate      # terraform validate, no credentials needed
-make prod-plan-floci    # plan the real AWS config against Floci (133 resources)
+make prod-plan-floci    # plan the real AWS config against Floci (134 resources)
 ```
 
 ## 8. Ports and endpoints

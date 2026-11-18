@@ -203,6 +203,19 @@ Floci returns the referenced group as `<account>/<sg-id>`, real AWS returns
 emulator difference, not a config error, so I did not add `ignore_changes`
 for it: that would also hide real drift on AWS. Listed in floci.md limitations.
 
+### Issue 13: first CI run on GitHub failed (2 jobs)
+
+- `build`: `Unable to resolve action aquasecurity/trivy-action@0.28.0`. The tag
+  format is `v0.x.y`. Fixed by pinning the action to the commit of `v0.36.0`
+  (`ed142fd...`). A commit SHA can not be moved later, a tag can.
+- `terraform` / tflint: (1) the Floci override file has no `required_version`
+  (correct for an override file, ignored with a file level `tflint-ignore-file`
+  comment), (2) `variable "shop_domain" is declared but not used` in the app
+  module. That one was a real gap: the HTTPS listener sent **every** host name
+  to the shop, including scanners hitting the ALB DNS name. Now `shop.*` has
+  its own listener rule and the default action returns 404. The production
+  plan went from 133 to 134 resources.
+
 ## Part 2: common errors
 
 | Symptom | Check | Fix |
