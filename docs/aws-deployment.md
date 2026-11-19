@@ -109,7 +109,7 @@ and `floci-overrides/`. `aws-prod` has no emulator settings and pins
    ```
 4. **Apply everything**
    ```bash
-   terraform plan -out=prod.plan    # review: about 134 resources
+   terraform plan -out=prod.plan    # review: about 135 resources
    terraform apply prod.plan        # RDS + OpenSearch take 15 to 25 minutes
    ```
 5. **First start of the platform**: the first task runs the database migrations

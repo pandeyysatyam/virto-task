@@ -55,8 +55,9 @@ fi
 # keep .env in line with what is running
 sed -i.bak -e "s|^PLATFORM_LOCAL_IMAGE=.*|PLATFORM_LOCAL_IMAGE=$PREV_PLATFORM|" \
            -e "s|^FRONTEND_LOCAL_IMAGE=.*|FRONTEND_LOCAL_IMAGE=$PREV_FRONTEND|" .env && rm -f .env.bak
-# move the bad release to the end of the file marked as rolled back
-{ sed '$d' .releases; echo "$PREVIOUS"; } > .releases.tmp && mv .releases.tmp .releases
+# drop the bad release from the history, so the last line is again the running
+# release and the next deploy of the same tags is recorded; keep a log of it
+sed '$d' .releases > .releases.tmp && mv .releases.tmp .releases
 echo "# rolled back from: $(cut -d' ' -f2-3 <<<"$CURRENT") at $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> .rollback.log
 
 ok "rolled back. Run ./scripts/validate.sh"

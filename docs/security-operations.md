@@ -76,6 +76,7 @@ AWS:
 - Security groups reference each other: `alb -> frontend -> platform -> db/cache/efs/search`.
   Nothing in the data tier accepts traffic from a CIDR.
 - Admin host name only from `admin_allowed_cidrs`, everyone else gets 403 from the ALB.
+  Only `/assets/*` and `/cms-content/*` (public product images and CMS files) are open.
 - Floci limitation: it stores VPCs and SGs but does not enforce them (no routing,
   SG enforcement is off by default), so these boundaries are verified on Docker
   networks locally and only designed for AWS.

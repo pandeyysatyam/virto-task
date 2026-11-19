@@ -76,7 +76,7 @@ check "backend network is internal (no internet)" bash -c \
 check "frontend container can not reach the database" bash -c \
   "! docker compose exec -T frontend sh -c 'nc -z -w 3 db 5432'"
 check "platform and frontend ports bound to 127.0.0.1 only" bash -c \
-  "docker compose ps --format '{{.Ports}}' | grep -E '(8080|8090|8088)' | grep -vq '0.0.0.0'"
+  "ports=\$(docker compose ps --format '{{.Ports}}'); grep -q '127.0.0.1:' <<<\"\$ports\" && ! grep -qE '0\\.0\\.0\\.0:|\\[::\\]:' <<<\"\$ports\""
 
 echo "# containers run as non-root"
 check "platform runs as uid 1654" bash -c "[[ \$(docker compose exec -T platform id -u) == 1654 ]]"

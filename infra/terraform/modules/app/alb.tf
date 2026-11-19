@@ -1,6 +1,9 @@
 # Public ALB. TLS ends here with an ACM certificate.
 #   shop domain  -> frontend target group (nginx, which proxies API calls to the platform)
 #   admin domain -> platform target group, only from admin_allowed_cidrs
+#   admin domain /assets/* and /cms-content/* -> platform, from anywhere
+#     (product images and CMS files are linked from the shop, see
+#     Assets__FileSystem__PublicUrl in ecs.tf)
 #   anything else -> 404
 
 resource "aws_lb" "this" {
@@ -112,6 +115,31 @@ resource "aws_lb_listener_rule" "shop" {
   action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.frontend.arn
+  }
+}
+
+# Public files served by the platform. The storefront shows product images
+# from https://<admin domain>/assets/..., so these two paths must stay open
+# for shoppers while the rest of the admin host is limited by IP below.
+resource "aws_lb_listener_rule" "public_files" {
+  listener_arn = aws_lb_listener.https.arn
+  priority     = 5
+
+  condition {
+    host_header {
+      values = [var.admin_domain]
+    }
+  }
+
+  condition {
+    path_pattern {
+      values = ["/assets/*", "/cms-content/*"]
+    }
+  }
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.platform.arn
   }
 }
 

@@ -77,3 +77,7 @@ Notes:
 
 Update after the CI run: a listener rule for the shop host name was added (unknown hosts now get 404),
 so the current plan is 134 resources. The apply above was done with the 133 resource version.
+
+Update 2: a listener rule for public files was added (/assets/* and /cms-content/* on the
+admin host, open to everyone, because the shop links product images there). Plan run on
+2026-11-19 against Floci: "Plan: 135 to add, 0 to change, 0 to destroy."

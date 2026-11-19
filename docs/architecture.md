@@ -143,6 +143,8 @@ implementation steps: [aws-deployment.md](aws-deployment.md).
 - **ALB** with HTTPS (TLS 1.2/1.3 policy), HTTP redirects to HTTPS.
   `shop.*` goes to the frontend target group. `admin.*` goes to the platform
   target group, but only from office/VPN IP ranges, everyone else gets 403.
+  Exception: `/assets/*` and `/cms-content/*` on that host are open to everyone,
+  because product images and CMS files are linked from the shop.
 - **ECS on Fargate**: platform service (2 to 4 tasks, 2 vCPU / 4 GB) and
   frontend service (2 to 4 tasks, 0.25 vCPU / 512 MB). CPU target tracking
   autoscaling. Deployment circuit breaker with automatic rollback. The frontend

@@ -231,6 +231,22 @@ before the Alpine fix. The gate did what it is there for. Fix: `apk upgrade
 0.69.3 scan after the change: 0 CRITICAL. The platform scan stays report
 only, its base image is Virto's.
 
+### Issue 15: product images would be blocked on AWS (found in review)
+
+**Symptom.** Found while reading the AWS config end to end, not in a run (the
+AWS stack is not deployed). The platform builds image links from
+`Assets__FileSystem__PublicUrl`, which on AWS is `https://<admin domain>/assets/`.
+The ALB only lets office/VPN IPs reach the admin host and answers 403 to
+everyone else, so shoppers would see the shop without product images.
+
+**Why it did not show up locally.** Locally the asset URL is
+`http://localhost:8090/assets/` and nothing restricts that port on the laptop.
+
+**Fix.** New listener rule `public_files` (priority 5, before the admin rules):
+admin host + path `/assets/*` or `/cms-content/*` goes to the platform from
+any IP. The rest of the admin host is still IP restricted. Plan on Floci went
+from 134 to 135 resources.
+
 ## Part 2: common errors
 
 | Symptom | Check | Fix |

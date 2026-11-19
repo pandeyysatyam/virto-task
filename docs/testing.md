@@ -14,7 +14,7 @@ my runs are in `docs/evidence/` (no passwords in them).
 | 7 | Backup and restore | `./scripts/test-backup-restore.sh` | `backup-restore-test.txt` | restore from S3 (Floci), data back to the backup point |
 | 8 | Rollback | `deploy.sh` with a new tag, then `rollback.sh` | `rollback-test.txt` | back to release 1, history in SSM |
 | 9 | Alerting | stop frontend, `monitor.sh` | `alarm-demo.txt` | alarm OK -> ALARM -> OK |
-| 10 | Infrastructure | `terraform validate`, `plan-prod-on-floci.sh` | `floci-resources.txt`, `prod-stack-on-floci.txt` | floci-local applied; aws-prod plan 134 (133 at the time of the apply test), 123 created on Floci |
+| 10 | Infrastructure | `terraform validate`, `plan-prod-on-floci.sh` | `floci-resources.txt`, `prod-stack-on-floci.txt` | floci-local applied; aws-prod plan 135 (133 at the time of the apply test), 123 created on Floci |
 | 11 | Troubleshooting example | | `troubleshooting.md` issue 2 and 9 | root cause + fix documented |
 
 ## 1. Smoke tests: validate.sh
