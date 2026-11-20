@@ -80,13 +80,15 @@ secret_field() {
 }
 
 write_env() {
-  local db_pw cache_pw
+  local db_pw cache_pw admin_pw
   if $OFFLINE; then
     db_pw=$(openssl rand -hex 16)
     cache_pw=$(openssl rand -hex 20)
+    admin_pw="Vc-$(openssl rand -hex 6)-9A"
   else
     db_pw=$(secret_field virto/local/db password)
     cache_pw=$(secret_field virto/local/cache password)
+    admin_pw=$(secret_field virto/local/platform-admin password)
   fi
 
   if [[ -f .env ]]; then
@@ -97,6 +99,7 @@ write_env() {
 
   sed -e "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=${db_pw}|" \
       -e "s|^CACHE_PASSWORD=.*|CACHE_PASSWORD=${cache_pw}|" \
+      -e "s|^VC_ADMIN_PASSWORD=.*|VC_ADMIN_PASSWORD=${admin_pw}|" \
       .env.example > .env
   chmod 600 .env
   ok ".env written (mode 600). Passwords come from $($OFFLINE && echo 'openssl rand' || echo 'Secrets Manager on Floci')"
