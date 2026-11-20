@@ -23,7 +23,6 @@ locals {
     { name = "Assets__FileSystem__RootPath", value = "~/assets" },
     { name = "Assets__FileSystem__PublicUrl", value = "https://${var.admin_domain}/assets/" },
     { name = "Content__FileSystem__PublicUrl", value = "https://${var.admin_domain}/cms-content/" },
-    { name = "VirtoCommerce__PlatformUI__EnvironmentBanner__Name", value = var.environment },
   ]
 }
 

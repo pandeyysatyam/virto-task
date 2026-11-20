@@ -129,7 +129,6 @@ resource "aws_acm_certificate_validation" "this" {
 module "app" {
   source              = "../../modules/app"
   name                = local.name
-  environment         = var.environment
   region              = var.region
   vpc_id              = module.network.vpc_id
   public_subnet_ids   = module.network.public_subnet_ids

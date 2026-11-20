@@ -80,8 +80,6 @@ services:
       Assets__FileSystem__RootPath: "~/assets"
       Assets__FileSystem__PublicUrl: "${PLATFORM_PUBLIC_URL}/assets/"
       Content__FileSystem__PublicUrl: "${PLATFORM_PUBLIC_URL}/cms-content/"
-      VirtoCommerce__PlatformUI__EnvironmentBanner__Name: local
-      VirtoCommerce__PlatformUI__EnvironmentBanner__ThemePreset: dev
     ports:
       - "127.0.0.1:${PLATFORM_PORT}:8080"
     volumes:
