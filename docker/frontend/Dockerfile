@@ -6,7 +6,10 @@
 # paths (/graphql, /connect/token ...) to the platform, so the browser only
 # talks to one origin and there are no CORS issues.
 
-ARG NGINX_IMAGE=nginxinc/nginx-unprivileged:1.30.6-alpine
+# 1.31 (mainline): the 1.30.6 stable image has 4 CRITICAL nginx CVEs, fixed
+# in nginx 1.30.7, and no 1.30.7 image was published yet. Go back to stable
+# once it is.
+ARG NGINX_IMAGE=nginxinc/nginx-unprivileged:1.31.7-alpine
 
 FROM --platform=$BUILDPLATFORM alpine:3.22 AS download
 ARG FRONTEND_VERSION=2.59.1
