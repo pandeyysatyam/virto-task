@@ -1,0 +1,20 @@
+Copyright (c) 2026 Satyam Pandey (github.com/pandeyysatyam)
+All rights reserved.
+
+This repository was prepared as a technical assignment. It is shared only so
+that it can be reviewed as part of that assignment.
+
+You may read the code, clone it and run it locally to evaluate the work.
+
+You may not copy, modify, distribute, sublicense, or use this code or any part
+of it in a production system, a commercial product, or any other project
+without prior written permission from the copyright holder.
+
+Third-party software used here (Virto Commerce, PostgreSQL, Valkey, nginx,
+Floci, Terraform providers and others) stays under its own license. This
+notice covers only the original work in this repository: the Dockerfiles,
+compose files, nginx config, scripts, Terraform code, CI workflow, docs and
+diagrams.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED.

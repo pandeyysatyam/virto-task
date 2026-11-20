@@ -309,3 +309,7 @@ Next steps:
 - OpenTelemetry module to X-Ray for tracing.
 - Staging environment and a blue/green deploy with CodeDeploy.
 - Run Floci with the Docker socket in a throwaway CI VM to test ECS tasks too.
+
+## License
+
+All rights reserved. The code can be reviewed and run for evaluation, but not reused without permission. See [LICENSE](LICENSE).
