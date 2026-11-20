@@ -1,7 +1,7 @@
 # Managed data services: RDS PostgreSQL, ElastiCache (Valkey) and OpenSearch.
 
 # PostgreSQL 18 is required by Virto Commerce 3.1076 (the platform health
-# check fails on 17, see docs/troubleshooting.md issue 2).
+# check fails on 17).
 resource "aws_db_subnet_group" "this" {
   name       = "${var.name}-db"
   subnet_ids = var.data_subnet_ids

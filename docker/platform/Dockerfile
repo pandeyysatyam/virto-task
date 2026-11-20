@@ -8,7 +8,7 @@
 #
 # Why not vc-build? It was the first attempt. It also downloads the whole
 # platform again and uses a fixed 100 second HTTP timeout per file, which
-# failed on a slow connection (see docs/troubleshooting.md, issue 1).
+# failed on a slow connection.
 
 ARG PLATFORM_IMAGE=ghcr.io/virtocommerce/platform:3.1076.13
 

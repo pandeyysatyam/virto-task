@@ -79,7 +79,7 @@ jobs:
         with:
           directory: infra/terraform
           framework: terraform
-          soft_fail: true # report only: findings are reviewed in docs/security-operations.md
+          soft_fail: true # report only: findings are reviewed by hand
           output_format: cli
 
   build:

@@ -86,8 +86,7 @@ else
 fi
 
 # 3. admin password. Done LAST on purpose: the sample data import contains
-#    platform users and puts the admin password back to "store"
-#    (docs/troubleshooting.md, issue 9).
+#    platform users and puts the admin password back to "store".
 if [[ -z "$(get_token "$VC_ADMIN_USER" "$DEFAULT_PASSWORD")" ]]; then
   ok "default admin password is not accepted"
 else
